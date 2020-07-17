@@ -4,55 +4,54 @@ using UnityEngine;
 
 public class LevelGenerator : MonoBehaviour
 {
-    [SerializeField] private GameObject _groundTemplate;
-    [SerializeField] private GameObject _coinTemplate;
-    [SerializeField] private GameObject _blockTemplate;    
+    [SerializeField] private Pool _groundsPool;
+    [SerializeField] private Pool _coinsPool;
+    [SerializeField] private Pool _obstaclePool;
     [SerializeField] private Transform _player;
-    private List<Transform> _grounds = new List<Transform>();
-    private List<GameObject> _coins = new List<GameObject>();
-    private List<GameObject> _blocks = new List<GameObject>();
-    private List<GameObject> _useds = new List<GameObject>();
 
-    private void Awake()
+    private List<Transform> _useds = new List<Transform>();
+    private List<Coin> _coins = new List<Coin>();
+    private Transform _firstGroundPiece;
+    private const int _maxDistanceFromPlayer = 8;
+
+    private void Start()
     {
-        for (int i = 0; i < 10; i++)
+        foreach (var coinTransform in _coinsPool.GetElementList())
         {
-            GameObject ground = Instantiate(_groundTemplate, new Vector3(-12 + i * 3, 0, 0), Quaternion.identity);
-            _grounds.Add(ground.transform);
-            ground.transform.SetParent(transform);
-            _blocks.Add(Instantiate(_blockTemplate, new Vector3(0, 0, 0), Quaternion.identity));
-            _blocks[i].transform.SetParent(transform);
-            _blocks[i].SetActive(false);
+            var coin = coinTransform.GetComponent<Coin>();
+            _coins.Add(coin);
+            coin.CoinDisable += OnCoinDisable;
         }
 
-        for (int i = 0; i < 20; i++)
+        var groundList = _groundsPool.GetElementList();
+        for (int i = 0; i < groundList.Count; i++)
         {
-            _coins.Add(Instantiate(_coinTemplate, new Vector3(0, 0, 0), Quaternion.identity));
-            _coins[i].transform.SetParent(transform);
-            _coins[i].SetActive(false);            
-        }
+            groundList[i].position = new Vector3(-12 + i * 3, 0, 0);
+            groundList[i].gameObject.SetActive(true);
 
-        StartCoroutine(PutBlockCoroutine());
-        StartCoroutine(PutCoinCoroutine());
+        }
+        _firstGroundPiece = _groundsPool.GetElementByIndex(0);
+        StartCoroutine(PutObstacleOnZone());
+        StartCoroutine(CreateCoinLine());
     }
 
     private void OnEnable()
     {
-        for (int i = 0; i < 20; i++)
+        foreach (var coin in _coins)
         {
-            _coins[i].GetComponent<Coin>().CoinTaked += OnCoinTaked;
+            coin.CoinDisable += OnCoinDisable;
         }
     }
 
     private void OnDisable()
     {
-        for (int i = 0; i < 20; i++)
+        foreach (var coin in _coins)
         {
-            _coins[i].GetComponent<Coin>().CoinTaked -= OnCoinTaked;
+            coin.CoinDisable -= OnCoinDisable;
         }
     }
 
-    private void OnCoinTaked(GameObject coin)
+    private void OnCoinDisable(Transform coin)
     {
         if (_useds.Contains(coin))
         {
@@ -62,86 +61,71 @@ public class LevelGenerator : MonoBehaviour
 
     private void Update()
     {
-        if (_player.position.x - _grounds[0].position.x > 8)
+        if (_player.position.x - _groundsPool.GetElementByIndex(0).position.x > _maxDistanceFromPlayer)
         {
-            SendGroundForward();
+            _firstGroundPiece.Translate(30, 0, 0);
+            _groundsPool.MoveFirstElementToEndList();
+            _firstGroundPiece = _groundsPool.GetElementByIndex(0);            
         }
-        if (_useds.Count > 0 && _player.position.x - _useds[0].transform.position.x > 8)
+
+        if (_useds.Count > 0 && _player.position.x - _useds[0].position.x > _maxDistanceFromPlayer)
         {
-            _useds[0].SetActive(false);
+            _useds[0].gameObject.SetActive(false);
             _useds.RemoveAt(0);            
         }
     }
 
-    private void SendGroundForward()
-    {
-        var ground = _grounds[0];
-        ground.Translate(30, 0, 0);
-        _grounds.RemoveAt(0);
-        _grounds.Add(ground);
-    }
-
-    private IEnumerator PutBlockCoroutine()
+    private IEnumerator PutObstacleOnZone()
     {
         while (true)
         {
             yield return new WaitForSeconds(1.5f + Random.Range(0, 1.3f));
-            for (int i = 0; i < 10; i++)
+            var obstacle = _obstaclePool.GetAvailableElement();
+            if (obstacle != null)
             {
-                if (_blocks[i].activeSelf == false)
-                {
-                    GameObject block = _blocks[i];
-                    Vector3 position = _player.position;
-                    position.x += 21;
-                    position.y = 0; 
+                Vector3 position = _player.position;
+                position.x += 21;
+                position.y = 0; 
 
-                    var collider2D = Physics2D.OverlapBoxAll(position, new Vector2(1.2f, 0.8f), 0);
-                    foreach (var collider in collider2D)
+                var collider2D = Physics2D.OverlapBoxAll(position, new Vector2(1.2f, 0.8f), 0);
+                foreach (var collider in collider2D)
+                {
+                    if (collider.GetComponent<Coin>())
                     {
-                        if (collider.GetComponent<Coin>())
-                        {
-                            position.y = 2;
-                            break;
-                        }
-                    }              
-                    
-                    block.SetActive(true);
-                    block.transform.position = position;
-                    _useds.Add(block);
-                    break;
+                        position.y = 2;
+                        break;
+                    }
                 }
+
+                obstacle.gameObject.SetActive(true);
+                obstacle.position = position;
+                _useds.Add(obstacle);                
             }
         }
     }
 
-    private IEnumerator PutCoinCoroutine()
+    private IEnumerator CreateCoinLine()
     {
         while (true)
         {
             yield return new WaitForSeconds(1.5f + Random.Range(0, 1));
-            int coinCount = Random.Range(3, 6);
-            int index = 0;
             float yPosition = Random.Range(0, 2) * 2;
-            for (int i = 0; i < 20; i++)
+            var coinList = _coinsPool.GetAvailableElements(Random.Range(3, 6));
+
+            for (int i = 0; i < coinList.Count; i++)
             {                
-                if (_coins[i].activeSelf == false)
-                {
-                    PutCoin(_coins[i], index, yPosition);
-                    coinCount--;
-                    index++;
-                    if (coinCount == 0) break;
-                }
+                PutCoinOnZone(coinList[i], i, yPosition);
             }
         }
     }
 
-    private void PutCoin(GameObject coin, int index, float yPosition)
+    private void PutCoinOnZone(Transform coin, int index, float yPosition)
     {
         Vector3 position = _player.position;
-        position.x += 21 + index * 0.5f;
+        position.x += 24 + index * 0.5f;
         position.y = yPosition;
-        coin.SetActive(true);
-        coin.transform.position = position;
+        coin.gameObject.SetActive(true);
+        coin.position = position;
         _useds.Add(coin);
     }
 }

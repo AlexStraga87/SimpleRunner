@@ -323,6 +323,9 @@ GameObject:
   m_Component:
   - component: {fileID: 706474004}
   - component: {fileID: 706474003}
+  - component: {fileID: 706474007}
+  - component: {fileID: 706474006}
+  - component: {fileID: 706474005}
   m_Layer: 0
   m_Name: Ground
   m_TagString: Untagged
@@ -342,6 +345,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d4124e5004a6d34419c04e81f23b1c95, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _groundsPool: {fileID: 706474007}
+  _coinsPool: {fileID: 706474006}
+  _obstaclePool: {fileID: 706474005}
   _groundTemplate: {fileID: 5180035100066820205, guid: 3c074d86ca7892b458c1fb746266a6d6,
     type: 3}
   _coinTemplate: {fileID: 2554932755950376253, guid: 8fcbba257d2693a4cb6b95a684e0b537,
@@ -363,6 +369,51 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &706474005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 706474002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 317bc9b45d8f5744aaf7e8039aed4524, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _template: {fileID: 5993215200501553325, guid: b32eab9cd8ed5c94190b882bc908c8d9,
+    type: 3}
+  _countObject: 10
+--- !u!114 &706474006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 706474002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 317bc9b45d8f5744aaf7e8039aed4524, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _template: {fileID: 2554932755950376253, guid: 8fcbba257d2693a4cb6b95a684e0b537,
+    type: 3}
+  _countObject: 20
+--- !u!114 &706474007
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 706474002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 317bc9b45d8f5744aaf7e8039aed4524, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _template: {fileID: 5180035100066820205, guid: 3c074d86ca7892b458c1fb746266a6d6,
+    type: 3}
+  _countObject: 10
 --- !u!1 &713842112
 GameObject:
   m_ObjectHideFlags: 0
