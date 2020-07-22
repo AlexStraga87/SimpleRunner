@@ -12,6 +12,7 @@ public class Wallet : MonoBehaviour
     {
         if (collision.TryGetComponent(out Coin coin))
         {
+            coin.OnCoinTaked();
             coin.gameObject.SetActive(false);
             coinCont++;
             CoinTaked?.Invoke(coinCont.ToString());

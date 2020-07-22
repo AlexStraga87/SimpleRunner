@@ -13,6 +13,10 @@ public class LevelGenerator : MonoBehaviour
     private List<Coin> _coins = new List<Coin>();
     private Transform _firstGroundPiece;
     private const int _maxDistanceFromPlayer = 8;
+    private const int _widthGroundTile = 3;
+    private const int _startXGround = -12;
+    private const int _xOffsetCoin = 24;
+    private const int _xOffsetObstacle = 21;
 
     private void Start()
     {
@@ -20,26 +24,25 @@ public class LevelGenerator : MonoBehaviour
         {
             var coin = coinTransform.GetComponent<Coin>();
             _coins.Add(coin);
-            coin.CoinDisable += OnCoinDisable;
+            coin.CoinTaked += OnCoinTaked;
         }
 
         var groundList = _groundsPool.GetElementList();
         for (int i = 0; i < groundList.Count; i++)
         {
-            groundList[i].position = new Vector3(-12 + i * 3, 0, 0);
+            groundList[i].position = new Vector3(_startXGround + i * _widthGroundTile, 0, 0);
             groundList[i].gameObject.SetActive(true);
-
         }
         _firstGroundPiece = _groundsPool.GetElementByIndex(0);
-        StartCoroutine(PutObstacleOnZone());
-        StartCoroutine(CreateCoinLine());
+        StartCoroutine(GenerateObstacle());
+        StartCoroutine(GenerateCoinLine());
     }
 
     private void OnEnable()
     {
         foreach (var coin in _coins)
         {
-            coin.CoinDisable += OnCoinDisable;
+            coin.CoinTaked += OnCoinTaked;
         }
     }
 
@@ -47,11 +50,11 @@ public class LevelGenerator : MonoBehaviour
     {
         foreach (var coin in _coins)
         {
-            coin.CoinDisable -= OnCoinDisable;
+            coin.CoinTaked -= OnCoinTaked;
         }
     }
 
-    private void OnCoinDisable(Transform coin)
+    private void OnCoinTaked(Transform coin)
     {
         if (_useds.Contains(coin))
         {
@@ -63,8 +66,11 @@ public class LevelGenerator : MonoBehaviour
     {
         if (_player.position.x - _groundsPool.GetElementByIndex(0).position.x > _maxDistanceFromPlayer)
         {
-            _firstGroundPiece.Translate(30, 0, 0);
-            _groundsPool.MoveFirstElementToEndList();
+            _firstGroundPiece.Translate(_widthGroundTile * _groundsPool.CountObject, 0, 0);
+            var poolList = _groundsPool.GetElementList();
+            poolList.Remove(_firstGroundPiece);
+            poolList.Add(_firstGroundPiece);
+            _groundsPool.SetElementList(poolList);
             _firstGroundPiece = _groundsPool.GetElementByIndex(0);            
         }
 
@@ -75,7 +81,7 @@ public class LevelGenerator : MonoBehaviour
         }
     }
 
-    private IEnumerator PutObstacleOnZone()
+    private IEnumerator GenerateObstacle()
     {
         while (true)
         {
@@ -84,10 +90,10 @@ public class LevelGenerator : MonoBehaviour
             if (obstacle != null)
             {
                 Vector3 position = _player.position;
-                position.x += 21;
+                position.x += _xOffsetObstacle;
                 position.y = 0; 
 
-                var collider2D = Physics2D.OverlapBoxAll(position, new Vector2(1.2f, 0.8f), 0);
+                var collider2D = Physics2D.OverlapBoxAll(position, new Vector2(_widthGroundTile / 3f, _widthGroundTile / 3f), 0);
                 foreach (var collider in collider2D)
                 {
                     if (collider.GetComponent<Coin>())
@@ -104,7 +110,7 @@ public class LevelGenerator : MonoBehaviour
         }
     }
 
-    private IEnumerator CreateCoinLine()
+    private IEnumerator GenerateCoinLine()
     {
         while (true)
         {
@@ -114,15 +120,15 @@ public class LevelGenerator : MonoBehaviour
 
             for (int i = 0; i < coinList.Count; i++)
             {                
-                PutCoinOnZone(coinList[i], i, yPosition);
+                GenerateCoin(coinList[i], i, yPosition);
             }
         }
     }
 
-    private void PutCoinOnZone(Transform coin, int index, float yPosition)
+    private void GenerateCoin(Transform coin, int index, float yPosition)
     {
         Vector3 position = _player.position;
-        position.x += 24 + index * 0.5f;
+        position.x += _xOffsetCoin + index * 0.5f;
         position.y = yPosition;
         coin.gameObject.SetActive(true);
         coin.position = position;

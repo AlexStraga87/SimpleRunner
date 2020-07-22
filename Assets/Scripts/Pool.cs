@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class Pool : MonoBehaviour
 {
+    public int CountObject => _countObject;
     [SerializeField] private GameObject _template;
     [SerializeField] private int _countObject;
     private List<Transform> _objects = new List<Transform>();
@@ -21,6 +22,11 @@ public class Pool : MonoBehaviour
     public List<Transform> GetElementList()
     {
         return _objects;
+    }
+
+    public void SetElementList(List<Transform> newList)
+    {
+        _objects = newList;
     }
 
     public Transform GetElementByIndex(int index)
@@ -53,13 +59,6 @@ public class Pool : MonoBehaviour
             }
         }
         return list;
-    }
-
-    public void MoveFirstElementToEndList()
-    {
-        Transform listElement = _objects[0];
-        _objects.Remove(listElement);
-        _objects.Add(listElement);
     }
 
 }

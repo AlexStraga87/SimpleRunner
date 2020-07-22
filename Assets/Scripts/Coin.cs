@@ -5,10 +5,10 @@ using UnityEngine.Events;
 
 public class Coin : MonoBehaviour
 {
-    public event UnityAction<Transform> CoinDisable;
+    public event UnityAction<Transform> CoinTaked;
 
-    public void OnDisable()
+    public void OnCoinTaked()
     {
-        CoinDisable?.Invoke(transform);
+        CoinTaked?.Invoke(transform);
     }
 }

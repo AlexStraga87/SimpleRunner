@@ -8,6 +8,7 @@ public class PlayerMover : MonoBehaviour
     [SerializeField] private float speed = 7;
     private Rigidbody2D _rigidBody;
     private const float _groundYPosition = 0.65f;
+    private const int _jumpPower = 500;
 
     private void Start()
     {
@@ -19,7 +20,7 @@ public class PlayerMover : MonoBehaviour
         transform.Translate(Vector3.right * speed * Time.deltaTime);
         if (Input.GetKeyDown(KeyCode.Space) && transform.position.y < _groundYPosition)
         {
-            _rigidBody.AddForce(new Vector2(0, 500));
+            _rigidBody.AddForce(new Vector2(0, _jumpPower));
         }
     }
 }
