@@ -91,7 +91,7 @@ public class LevelGenerator : MonoBehaviour
             {
                 Vector3 position = _player.position;
                 position.x += _xOffsetObstacle;
-                position.y = 0; 
+                position.y = 0;
 
                 var collider2D = Physics2D.OverlapBoxAll(position, new Vector2(_widthGroundTile / 3f, _widthGroundTile / 3f), 0);
                 foreach (var collider in collider2D)
@@ -103,9 +103,7 @@ public class LevelGenerator : MonoBehaviour
                     }
                 }
 
-                obstacle.gameObject.SetActive(true);
-                obstacle.position = position;
-                _useds.Add(obstacle);                
+                GenerateObject(obstacle, 0, position.y, _xOffsetObstacle);
             }
         }
     }
@@ -119,19 +117,19 @@ public class LevelGenerator : MonoBehaviour
             var coinList = _coinsPool.GetAvailableElements(Random.Range(3, 6));
 
             for (int i = 0; i < coinList.Count; i++)
-            {                
-                GenerateCoin(coinList[i], i, yPosition);
+            {
+                GenerateObject(coinList[i], i, yPosition, _xOffsetCoin);
             }
         }
     }
 
-    private void GenerateCoin(Transform coin, int index, float yPosition)
+    private void GenerateObject(Transform transformObject, int index, float yPosition, float offset)
     {
         Vector3 position = _player.position;
-        position.x += _xOffsetCoin + index * 0.5f;
+        position.x += offset + index * 0.5f;
         position.y = yPosition;
-        coin.gameObject.SetActive(true);
-        coin.position = position;
-        _useds.Add(coin);
+        transformObject.gameObject.SetActive(true);
+        transformObject.position = position;
+        _useds.Add(transformObject);
     }
 }

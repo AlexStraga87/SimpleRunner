@@ -348,12 +348,6 @@ MonoBehaviour:
   _groundsPool: {fileID: 706474007}
   _coinsPool: {fileID: 706474006}
   _obstaclePool: {fileID: 706474005}
-  _groundTemplate: {fileID: 5180035100066820205, guid: 3c074d86ca7892b458c1fb746266a6d6,
-    type: 3}
-  _coinTemplate: {fileID: 2554932755950376253, guid: 8fcbba257d2693a4cb6b95a684e0b537,
-    type: 3}
-  _blockTemplate: {fileID: 5993215200501553325, guid: b32eab9cd8ed5c94190b882bc908c8d9,
-    type: 3}
   _player: {fileID: 1245780571}
 --- !u!4 &706474004
 Transform:
@@ -820,7 +814,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58839b583351bf449b9c834146b8b6d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _offsetPosition: {x: 7.5, y: 4, z: -10}
+  _offset: {x: 8, y: 4.5, z: -10}
   _player: {fileID: 1245780571}
 --- !u!1 &1016212238
 GameObject:
